@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VéXanh — Đặt Vé Xe Khách Liên Tỉnh</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="logo-icon">🚌</span>Vé<span>Xanh</span></div>
+  
+  <div class="header-right">
+    <nav class="nav-main">
+      <a href="#" onclick="resetAll(); return false;">Trang chủ</a>
+      <a href="#" onclick="showSchedule(); return false;">Lịch trình</a>
+      <a href="#" onclick="showLookupPanel(); return false;">Tra cứu vé</a>
+      <a href="#">Liên hệ</a>
+    </nav>
+    
+    <div class="nav-divider"></div>
+    
+    <nav class="nav-utilities">
+      <a href="#" class="util-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        Tiếng Việt
+      </a>
+      <a href="#" class="util-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        Hỗ trợ
+      </a>
+      <a href="#" class="btn-account">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Đăng nhập
+      </a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-content">
+    <h1>Đặt vé xe khách<br><em>nhanh & dễ dàng</em></h1>
+    <p>Hơn 500 tuyến liên tỉnh — Giữ ghế chỉ trong 3 bước</p>
+    <div class="search-card">
+      <div class="route-fields" style="grid-column:1/3">
+        <div class="field-group" style="flex:1">
+          <label>Điểm đi</label>
+          <select id="fromCity">
+            <option value="">Chọn điểm đi</option>
+            <option value="HCM" selected>TP. Hồ Chí Minh</option>
+            <option value="HN">Hà Nội</option>
+            <option value="DN">Đà Nẵng</option>
+            <option value="CT">Cần Thơ</option>
+            <option value="NT">Nha Trang</option>
+            <option value="BMT">Buôn Ma Thuột</option>
+            <option value="DL">Đà Lạt</option>
+          </select>
+        </div>
+        <button class="swap-btn" onclick="swapCities()" title="Đổi chiều">⇄</button>
+        <div class="field-group" style="flex:1">
+          <label>Điểm đến</label>
+          <select id="toCity">
+            <option value="">Chọn điểm đến</option>
+            <option value="HCM">TP. Hồ Chí Minh</option>
+            <option value="HN">Hà Nội</option>
+            <option value="DN">Đà Nẵng</option>
+            <option value="CT">Cần Thơ</option>
+            <option value="NT" selected>Nha Trang</option>
+            <option value="BMT">Buôn Ma Thuột</option>
+            <option value="DL">Đà Lạt</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Ngày đi</label>
+        <input type="date" id="departDate">
+      </div>
+      <div class="field-group">
+        <label>Số hành khách</label>
+        <select id="passengerCount">
+          <option value="1">1 hành khách</option>
+          <option value="2">2 hành khách</option>
+          <option value="3">3 hành khách</option>
+          <option value="4">4 hành khách</option>
+          <option value="5">5 hành khách</option>
+        </select>
+      </div>
+      <button class="btn-search" onclick="searchTrips()">🔍 Tìm chuyến</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="steps" id="stepsBar">
+    <div class="step active" id="step1"><div class="step-num">1</div><span class="step-label">Chọn chuyến</span></div>
+    <div class="step" id="step2"><div class="step-num">2</div><span class="step-label">Chọn ghế</span></div>
+    <div class="step" id="step3"><div class="step-num">3</div><span class="step-label">Thông tin</span></div>
+    <div class="step" id="step4"><div class="step-num">4</div><span class="step-label">Thanh toán</span></div>
+    <div class="step" id="step5"><div class="step-num">5</div><span class="step-label">Xác nhận</span></div>
+  </div>
+
+  <div class="panel active" id="panel1">
+    <div class="section-title">Các chuyến xe phù hợp</div>
+    
+    <div class="trips-layout">
+      <aside class="trips-filter">
+        <div class="filter-header">
+          <h3>Bộ lọc tìm kiếm</h3>
+          <button class="btn-clear-filter" onclick="clearFilters()">Xóa lọc</button>
+        </div>
+        
+        <div class="filter-group">
+          <h4>Loại xe</h4>
+          <label class="filter-label">
+            <input type="checkbox" value="GN" onchange="applyFilters()"> Giường nằm
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="SL" onchange="applyFilters()"> Ghế ngồi
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="VIP" onchange="applyFilters()"> Limousine / VIP
+          </label>
+        </div>
+
+        <div class="filter-group">
+          <h4>Giờ khởi hành</h4>
+          <label class="filter-label">
+            <input type="checkbox" value="morning" onchange="applyFilters()"> Sáng (06:00 - 12:00)
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="afternoon" onchange="applyFilters()"> Chiều (12:00 - 18:00)
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="evening" onchange="applyFilters()"> Tối (18:00 - 24:00)
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="night" onchange="applyFilters()"> Đêm (00:00 - 06:00)
+          </label>
+        </div>
+      </aside>
+
+      <div class="trips-list-wrapper">
+        <div id="tripsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel2">
+    <div class="section-title" id="seatMapTitle">Chọn ghế ngồi</div>
+    <div class="seat-layout">
+      <div>
+        <div class="seat-panel">
+          <div class="seat-panel-title">Tầng dưới</div>
+          <div class="seat-deck-label">Nhấn vào ghế để chọn</div>
+          <div class="bus-frame">
+            <div class="bus-front">
+              <span class="steering">🚌</span>
+              <span class="bus-door">CỬA LÊN</span>
+            </div>
+            <div class="seat-grid" id="lowerDeck"></div>
+          </div>
+          <div class="seat-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#e8f5e9;border:1.5px solid #a5d6a7"></div>Trống</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--green-bright)"></div>Đã chọn</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f5f5f5;border:1.5px solid #e0e0e0"></div>Đã đặt</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#fff8e1;border:1.5px solid #ffe082"></div>VIP</div>
+          </div>
+        </div>
+      </div>
+      <div id="upperDeckContainer">
+        <div class="seat-panel">
+          <div class="seat-panel-title">Tầng trên</div>
+          <div class="seat-deck-label">Xe giường nằm 2 tầng</div>
+          <div class="bus-frame">
+            <div class="bus-front">
+              <span class="steering">⬆️</span>
+              <span class="bus-door">TẦNG TRÊN</span>
+            </div>
+            <div class="seat-grid" id="upperDeck"></div>
+          </div>
+        </div>
+      </div>
+      <div id="seatSummaryCol" style="grid-column:1/-1">
+        <div class="selected-summary">
+          <h4>Ghế đã chọn</h4>
+          <div class="selected-seat-tags" id="selectedTags"><span style="color:var(--mist);font-size:13px">Chưa chọn ghế nào</span></div>
+          <div class="price-line"><span>Đơn giá:</span><span id="unitPrice">—</span></div>
+          <div class="price-line"><span>Số ghế:</span><span id="seatCount">0</span></div>
+          <div class="price-line" style="font-size:16px;font-weight:700;"><span>Tổng:</span><span class="price-total" id="totalPrice">0 ₫</span></div>
+          <button class="btn-next" id="btnToPassenger" onclick="goToPassenger()" disabled>Tiếp tục → Nhập thông tin</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel3">
+    <div class="section-title">Thông tin hành khách</div>
+    <div class="passenger-form">
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div class="passenger-section">
+          <h3>Người đặt vé</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Họ và tên *</label>
+              <input type="text" id="pName" placeholder="Nguyễn Văn A">
+            </div>
+            <div class="form-group">
+              <label>Số điện thoại *</label>
+              <input type="tel" id="pPhone" placeholder="0901 234 567">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="pEmail" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+              <label>CMND / CCCD</label>
+              <input type="text" id="pID" placeholder="012345678">
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Điểm đón mong muốn</label>
+            <select id="pPickup">
+              <option>Bến xe Miền Đông</option>
+              <option>Bến xe An Sương</option>
+              <option>Bến xe Ngã Tư Ga</option>
+              <option>Đón tại địa chỉ riêng</option>
+            </select>
+          </div>
+          <div class="form-group full" style="margin-top:8px">
+            <label>Ghi chú thêm</label>
+            <textarea id="pNote" rows="3" placeholder="Ví dụ: cần chỗ để xe đạp, có trẻ nhỏ..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="booking-summary">
+        <h3>Tóm tắt đơn hàng</h3>
+        <div class="summary-route" id="summaryRoute"></div>
+        <div id="summaryRows"></div>
+        <div class="summary-total">
+          <span class="label">Tổng thanh toán</span>
+          <span class="amount" id="summaryTotal">—</span>
+        </div>
+        <button class="btn-next" onclick="goToPayment()" style="margin-top:24px">Tiếp tục → Thanh toán</button>
+        <button class="btn-outline" onclick="goBack(3)" style="width:100%;margin-top:10px">← Quay lại</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel4">
+    <div class="section-title">Thanh toán</div>
+    <div class="payment-grid">
+      <div class="payment-methods">
+        <h3>Chọn phương thức thanh toán</h3>
+        <div class="method-group">
+          <div class="method-group-title">Ví điện tử & QR</div>
+          <div class="method-card selected" onclick="selectMethod(this,'momo')">
+            <div class="method-icon" style="background:#ffe0f0">🐙</div>
+            <div class="method-info">
+              <div class="method-name">MoMo</div>
+              <div class="method-desc">Ví điện tử MoMo — thanh toán tức thì</div>
+            </div>
+            <div class="method-check"></div>
+          </div>
+          <div class="method-card" onclick="selectMethod(this,'vnpay')">
+            <div class="method-icon" style="background:#e3f2fd">💠</div>
+            <div class="method-info">
+              <div class="method-name">VNPay QR</div>
+              <div class="method-desc">Quét mã với mọi app ngân hàng</div>
+            </div>
+            <div class="method-check"></div>
+          </div>
+          <div class="method-card" onclick="selectMethod(this,'zalopay')">
+            <div class="method-icon" style="background:#e8f5e9">💚</div>
+            <div class="method-info">
+              <div class="method-name">ZaloPay</div>
+              <div class="method-desc">Thanh toán qua ứng dụng ZaloPay</div>
+            </div>
+            <div class="method-check"></div>
+          </div>
+        </div>
+        <div class="method-group">
+          <div class="method-group-title">Thẻ ngân hàng</div>
+          <div class="method-card" onclick="selectMethod(this,'card')">
+            <div class="method-icon" style="background:#fff3e0">💳</div>
+            <div class="method-info">
+              <div class="method-name">Thẻ tín dụng / ghi nợ</div>
+              <div class="method-desc">Visa, Mastercard, JCB</div>
+            </div>
+            <div class="method-check"></div>
+          </div>
+          <div class="card-fields" id="cardFields">
+            <div class="card-number-visual">
+              <div class="card-chip">💳</div>
+              <div class="card-num" id="cardNumDisplay">•••• •••• •••• ••••</div>
+              <div class="card-meta"><span id="cardNameDisplay">TÊN CHỦ THẺ</span><span id="cardExpDisplay">MM/YY</span></div>
+            </div>
+            <div class="form-group" style="margin-bottom:12px">
+              <label>Số thẻ</label>
+              <input type="text" id="cardNum" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNum(this)">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group">
+                <label>Tên chủ thẻ</label>
+                <input type="text" id="cardName" placeholder="NGUYEN VAN A" oninput="document.getElementById('cardNameDisplay').textContent=this.value.toUpperCase()||'TÊN CHỦ THẺ'">
+              </div>
+              <div class="form-group">
+                <label>Ngày hết hạn</label>
+                <input type="text" id="cardExp" maxlength="5" placeholder="MM/YY" oninput="formatExp(this)">
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:12px">
+              <label>CVV</label>
+              <input type="password" maxlength="3" placeholder="•••" style="max-width:100px">
+            </div>
+          </div>
+          <div class="method-card" onclick="selectMethod(this,'bank')">
+            <div class="method-icon" style="background:#f3e5f5">🏦</div>
+            <div class="method-info">
+              <div class="method-name">Chuyển khoản ngân hàng</div>
+              <div class="method-desc">Chuyển khoản trực tiếp theo STK</div>
+            </div>
+            <div class="method-check"></div>
+          </div>
+        </div>
+        <div style="margin-top:20px;padding:14px;background:var(--green-pale);border-radius:10px;font-size:13px;color:var(--mist);display:flex;gap:8px">
+          <span>🔒</span><span>Thanh toán được mã hóa SSL 256-bit. Thông tin thẻ được bảo mật tuyệt đối.</span>
+        </div>
+      </div>
+      <div>
+        <div class="booking-summary" style="margin-bottom:16px">
+          <h3>Đơn hàng</h3>
+          <div id="paymentSummaryRows"></div>
+          <div class="summary-total">
+            <span class="label">Tổng</span>
+            <span class="amount" id="paymentTotal">—</span>
+          </div>
+        </div>
+        <div style="background:var(--white);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)">
+          <div style="font-size:13px;color:var(--mist);margin-bottom:10px">⏱ Phiên đặt vé còn lại</div>
+          <div id="countdown" style="font-size:28px;font-weight:700;color:var(--red);font-family:monospace">09:59</div>
+        </div>
+        <button class="btn-next" onclick="processPayment()" style="margin-top:16px;width:100%">🔐 Xác nhận thanh toán</button>
+        <button class="btn-outline" onclick="goBack(4)" style="width:100%;margin-top:10px">← Quay lại</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel5">
+    <div class="success-panel">
+      <div class="success-icon">🎉</div>
+      <h2>Đặt vé thành công!</h2>
+      <p>Vé điện tử đã được gửi về email của bạn. Vui lòng đến trước giờ khởi hành 30 phút.</p>
+      <div class="ticket-card" id="ticketCard"></div>
+      <div>
+        <button class="btn-download" onclick="showToast('Đang tải vé PDF...','success')">📥 Tải vé PDF</button>
+        <button class="btn-outline" onclick="resetAll()">🏠 Đặt vé mới</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel6">
+    <div class="section-title">Vé đã đặt của bạn</div>
+    <div id="myTicketsList" style="display: flex; flex-direction: column; gap: 20px; max-width: 800px; margin: 0 auto;">
+      </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────
+const CITIES = {
+  HCM:'TP. Hồ Chí Minh', HN:'Hà Nội', DN:'Đà Nẵng',
+  CT:'Cần Thơ', NT:'Nha Trang', BMT:'Buôn Ma Thuột', DL:'Đà Lạt'
+};
+
+// Map city select values → display names used in trip data
+const CITY_DISPLAY = {
+  HCM:'TP. HCM', HN:'Hà Nội', DN:'Đà Nẵng',
+  CT:'Cần Thơ', NT:'Nha Trang', BMT:'Buôn Ma Thuột', DL:'Đà Lạt'
+};
+
+const ALL_TRIPS = [
+  // TP. HCM → các tuyến
+  { id:1,  company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'HCM', toKey:'NT',  from:'TP. HCM', to:'Nha Trang',     depart:'06:00', arrive:'12:30', duration:'6t30p', price:195000, type:'GN', bus:'Limousine',   seats:12 },
+  { id:2,  company:'Thành Bưởi',   logo:'TB', color:'#fff3e0', fromKey:'HCM', toKey:'NT',  from:'TP. HCM', to:'Nha Trang',     depart:'08:00', arrive:'14:00', duration:'6t',    price:170000, type:'SL', bus:'Ghế ngồi',   seats:28 },
+  { id:3,  company:'Kumho Samco',  logo:'KS', color:'#f3e5f5', fromKey:'HCM', toKey:'NT',  from:'TP. HCM', to:'Nha Trang',     depart:'20:30', arrive:'05:00', duration:'8t30p', price:230000, type:'VIP',bus:'VIP Sleeper', seats:5  },
+  { id:4,  company:'Hoàng Long',   logo:'HL', color:'#e8f5e9', fromKey:'HCM', toKey:'NT',  from:'TP. HCM', to:'Nha Trang',     depart:'13:00', arrive:'20:00', duration:'7t',    price:160000, type:'SL', bus:'Ghế ngồi',   seats:18 },
+  { id:5,  company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'HCM', toKey:'DN',  from:'TP. HCM', to:'Đà Nẵng',      depart:'07:00', arrive:'20:30', duration:'13t30p',price:350000, type:'GN', bus:'Giường nằm', seats:20 },
+  { id:6,  company:'Hoàng Long',   logo:'HL', color:'#e8f5e9', fromKey:'HCM', toKey:'DN',  from:'TP. HCM', to:'Đà Nẵng',      depart:'18:00', arrive:'08:00', duration:'14t',   price:320000, type:'GN', bus:'Giường nằm', seats:8  },
+  { id:7,  company:'Thành Bưởi',   logo:'TB', color:'#fff3e0', fromKey:'HCM', toKey:'DL',  from:'TP. HCM', to:'Đà Lạt',       depart:'06:30', arrive:'12:00', duration:'5t30p', price:155000, type:'SL', bus:'Ghế ngồi',   seats:32 },
+  { id:8,  company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'HCM', toKey:'DL',  from:'TP. HCM', to:'Đà Lạt',       depart:'08:00', arrive:'13:30', duration:'5t30p', price:180000, type:'GN', bus:'Limousine',   seats:14 },
+  { id:9,  company:'Kumho Samco',  logo:'KS', color:'#f3e5f5', fromKey:'HCM', toKey:'DL',  from:'TP. HCM', to:'Đà Lạt',       depart:'22:00', arrive:'04:00', duration:'6t',    price:210000, type:'VIP',bus:'VIP Sleeper', seats:4  },
+  { id:10, company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'HCM', toKey:'CT',  from:'TP. HCM', to:'Cần Thơ',      depart:'07:00', arrive:'10:30', duration:'3t30p', price:110000, type:'SL', bus:'Ghế ngồi',   seats:40 },
+  { id:11, company:'Hoàng Long',   logo:'HL', color:'#e8f5e9', fromKey:'HCM', toKey:'CT',  from:'TP. HCM', to:'Cần Thơ',      depart:'09:00', arrive:'12:30', duration:'3t30p', price:120000, type:'GN', bus:'Limousine',   seats:22 },
+  { id:12, company:'Thành Bưởi',   logo:'TB', color:'#fff3e0', fromKey:'HCM', toKey:'BMT', from:'TP. HCM', to:'Buôn Ma Thuột',depart:'21:00', arrive:'06:00', duration:'9t',    price:260000, type:'GN', bus:'Giường nằm', seats:16 },
+  { id:13, company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'HCM', toKey:'BMT', from:'TP. HCM', to:'Buôn Ma Thuột',depart:'07:30', arrive:'16:30', duration:'9t',    price:240000, type:'SL', bus:'Ghế ngồi',   seats:10 },
+  { id:14, company:'Kumho Samco',  logo:'KS', color:'#f3e5f5', fromKey:'HCM', toKey:'HN',  from:'TP. HCM', to:'Hà Nội',       depart:'10:00', arrive:'14:00', duration:'~2 ngày',price:550000,type:'GN', bus:'Giường nằm', seats:6  },
+
+  // Cần Thơ → các tuyến
+  { id:20, company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'CT',  toKey:'HCM', from:'Cần Thơ', to:'TP. HCM',      depart:'05:00', arrive:'08:30', duration:'3t30p', price:110000, type:'SL', bus:'Ghế ngồi',   seats:35 },
+  { id:21, company:'Hoàng Long',   logo:'HL', color:'#e8f5e9', fromKey:'CT',  toKey:'HCM', from:'Cần Thơ', to:'TP. HCM',      depart:'08:00', arrive:'11:30', duration:'3t30p', price:120000, type:'GN', bus:'Limousine',   seats:18 },
+  { id:22, company:'Thành Bưởi',   logo:'TB', color:'#fff3e0', fromKey:'CT',  toKey:'HCM', from:'Cần Thơ', to:'TP. HCM',      depart:'14:00', arrive:'17:30', duration:'3t30p', price:105000, type:'SL', bus:'Ghế ngồi',   seats:26 },
+  { id:23, company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'CT',  toKey:'DN',  from:'Cần Thơ', to:'Đà Nẵng',     depart:'17:00', arrive:'08:00', duration:'15t',   price:380000, type:'GN', bus:'Giường nằm', seats:12 },
+  { id:24, company:'Kumho Samco',  logo:'KS', color:'#f3e5f5', fromKey:'CT',  toKey:'DN',  from:'Cần Thơ', to:'Đà Nẵng',     depart:'19:00', arrive:'10:00', duration:'15t',   price:360000, type:'GN', bus:'Giường nằm', seats:8  },
+  { id:25, company:'Hoàng Long',   logo:'HL', color:'#e8f5e9', fromKey:'CT',  toKey:'DL',  from:'Cần Thơ', to:'Đà Lạt',      depart:'06:00', arrive:'13:30', duration:'7t30p', price:200000, type:'SL', bus:'Ghế ngồi',   seats:24 },
+  { id:26, company:'Thành Bưởi',   logo:'TB', color:'#fff3e0', fromKey:'CT',  toKey:'NT',  from:'Cần Thơ', to:'Nha Trang',   depart:'20:00', arrive:'06:00', duration:'10t',   price:250000, type:'GN', bus:'Giường nằm', seats:10 },
+  { id:27, company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'CT',  toKey:'BMT', from:'Cần Thơ', to:'Buôn Ma Thuột',depart:'06:30', arrive:'16:00', duration:'9t30p',price:270000, type:'SL', bus:'Ghế ngồi',   seats:15 },
+
+  // Đà Nẵng → các tuyến
+  { id:30, company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'DN',  toKey:'HCM', from:'Đà Nẵng', to:'TP. HCM',     depart:'18:00', arrive:'08:00', duration:'14t',   price:350000, type:'GN', bus:'Giường nằm', seats:18 },
+  { id:31, company:'Hoàng Long',   logo:'HL', color:'#e8f5e9', fromKey:'DN',  toKey:'HN',  from:'Đà Nẵng', to:'Hà Nội',     depart:'20:00', arrive:'08:00', duration:'12t',   price:300000, type:'GN', bus:'Giường nằm', seats:14 },
+  { id:32, company:'Kumho Samco',  logo:'KS', color:'#f3e5f5', fromKey:'DN',  toKey:'NT',  from:'Đà Nẵng', to:'Nha Trang',  depart:'07:00', arrive:'14:00', duration:'7t',    price:190000, type:'SL', bus:'Ghế ngồi',   seats:22 },
+  { id:33, company:'Thành Bưởi',   logo:'TB', color:'#fff3e0', fromKey:'DN',  toKey:'CT',  from:'Đà Nẵng', to:'Cần Thơ',   depart:'17:00', arrive:'09:00', duration:'16t',   price:390000, type:'GN', bus:'Giường nằm', seats:9  },
+
+  // Hà Nội → các tuyến
+  { id:40, company:'Hoàng Long',   logo:'HL', color:'#e8f5e9', fromKey:'HN',  toKey:'DN',  from:'Hà Nội',  to:'Đà Nẵng',   depart:'19:00', arrive:'07:00', duration:'12t',   price:290000, type:'GN', bus:'Giường nằm', seats:20 },
+  { id:41, company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'HN',  toKey:'HCM', from:'Hà Nội',  to:'TP. HCM',   depart:'09:00', arrive:'13:00', duration:'~2 ngày',price:520000,type:'GN', bus:'Giường nằm', seats:7  },
+  { id:42, company:'Kumho Samco',  logo:'KS', color:'#f3e5f5', fromKey:'HN',  toKey:'NT',  from:'Hà Nội',  to:'Nha Trang', depart:'18:00', arrive:'10:00', duration:'16t',   price:420000, type:'VIP',bus:'VIP Sleeper', seats:5  },
+
+  // Nha Trang → các tuyến
+  { id:50, company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'NT',  toKey:'HCM', from:'Nha Trang', to:'TP. HCM',  depart:'06:00', arrive:'12:30', duration:'6t30p', price:195000, type:'GN', bus:'Limousine',   seats:11 },
+  { id:51, company:'Thành Bưởi',   logo:'TB', color:'#fff3e0', fromKey:'NT',  toKey:'HCM', from:'Nha Trang', to:'TP. HCM',  depart:'20:00', arrive:'03:00', duration:'7t',    price:170000, type:'GN', bus:'Giường nằm', seats:16 },
+  { id:52, company:'Hoàng Long',   logo:'HL', color:'#e8f5e9', fromKey:'NT',  toKey:'DN',  from:'Nha Trang', to:'Đà Nẵng', depart:'08:00', arrive:'15:30', duration:'7t30p', price:200000, type:'SL', bus:'Ghế ngồi',   seats:24 },
+  { id:53, company:'Kumho Samco',  logo:'KS', color:'#f3e5f5', fromKey:'NT',  toKey:'DL',  from:'Nha Trang', to:'Đà Lạt',  depart:'07:30', arrive:'11:30', duration:'4t',    price:120000, type:'SL', bus:'Ghế ngồi',   seats:30 },
+
+  // Đà Lạt → các tuyến
+  { id:60, company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'DL',  toKey:'HCM', from:'Đà Lạt',  to:'TP. HCM',   depart:'06:00', arrive:'11:30', duration:'5t30p', price:175000, type:'GN', bus:'Limousine',   seats:15 },
+  { id:61, company:'Thành Bưởi',   logo:'TB', color:'#fff3e0', fromKey:'DL',  toKey:'HCM', from:'Đà Lạt',  to:'TP. HCM',   depart:'13:00', arrive:'19:00', duration:'6t',    price:155000, type:'SL', bus:'Ghế ngồi',   seats:30 },
+  { id:62, company:'Hoàng Long',   logo:'HL', color:'#e8f5e9', fromKey:'DL',  toKey:'NT',  from:'Đà Lạt',  to:'Nha Trang', depart:'08:00', arrive:'12:00', duration:'4t',    price:120000, type:'SL', bus:'Ghế ngồi',   seats:28 },
+  { id:63, company:'Kumho Samco',  logo:'KS', color:'#f3e5f5', fromKey:'DL',  toKey:'CT',  from:'Đà Lạt',  to:'Cần Thơ',   depart:'19:00', arrive:'03:00', duration:'8t',    price:210000, type:'GN', bus:'Giường nằm', seats:10 },
+
+  // Buôn Ma Thuột → các tuyến
+  { id:70, company:'Phương Trang', logo:'PT', color:'#e3f2fd', fromKey:'BMT', toKey:'HCM', from:'Buôn Ma Thuột', to:'TP. HCM', depart:'20:00', arrive:'06:00', duration:'10t',  price:255000, type:'GN', bus:'Giường nằm', seats:14 },
+  { id:71, company:'Hoàng Long',   logo:'HL', color:'#e8f5e9', fromKey:'BMT', toKey:'HCM', from:'Buôn Ma Thuột', to:'TP. HCM', depart:'07:00', arrive:'17:00', duration:'10t',  price:240000, type:'SL', bus:'Ghế ngồi',   seats:20 },
+  { id:72, company:'Thành Bưởi',   logo:'TB', color:'#fff3e0', fromKey:'BMT', toKey:'DN',  from:'Buôn Ma Thuột', to:'Đà Nẵng', depart:'19:30', arrive:'07:30', duration:'12t',  price:310000, type:'GN', bus:'Giường nằm', seats:8  },
+];
+
+// Khởi tạo ghế đã đặt cố định cho từng chuyến xe ngay từ đầu
+ALL_TRIPS.forEach(trip => {
+  const hasTwoDecks = trip.type === 'GN' || trip.type === 'VIP';
+  const totalSeats = hasTwoDecks ? 40 : 45;
+  const bookedSet = new Set();
+  
+  // Random số lượng ghế đã đặt từ đầu
+  while (bookedSet.size < Math.floor(totalSeats * 0.35)) {
+    bookedSet.add('S' + Math.floor(Math.random() * totalSeats + 1));
+  }
+  trip.bookedSeats = bookedSet; // Lưu cứng vào dữ liệu của chuyến
+});
+
+// Active filtered list
+let TRIPS = [...ALL_TRIPS];
+
+let state = {
+  currentPanel: 1,
+  selectedTrip: null,
+  selectedSeats: [],
+  passengerInfo: {},
+  paymentMethod: 'momo',
+  countdownInterval: null,
+  countdownSec: 599,
+  searchedTrips: [],
+  bookedTickets: [],
+};
+
+// ─── INIT ────────────────────────────────────────────────
+const today = new Date(); today.setDate(today.getDate()+1);
+document.getElementById('departDate').value = today.toISOString().split('T')[0];
+// Show prompt to search on first load
+document.getElementById('tripsList').innerHTML = `
+  <div style="text-align:center;padding:60px 20px;background:var(--white);border-radius:16px;box-shadow:var(--shadow-sm)">
+    <div style="font-size:56px;margin-bottom:16px">🚌</div>
+    <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--green-deep);margin-bottom:8px">Chọn tuyến và bấm Tìm chuyến</div>
+    <div style="color:var(--mist);font-size:14px">Nhập điểm đi, điểm đến và ngày khởi hành để xem các chuyến xe phù hợp.</div>
+  </div>`;
+
+// ─── RENDER TRIPS ─────────────────────────────────────────
+function renderTrips() {
+  const badges = { SL:'badge-sl', GN:'badge-gn', VIP:'badge-vip' };
+  const typeLabels = { SL:'Ghế ngồi', GN:'Giường nằm', VIP:'VIP' };
+  const list = document.getElementById('tripsList');
+  if (TRIPS.length === 0) {
+    list.innerHTML = `
+      <div style="text-align:center;padding:60px 20px;background:var(--white);border-radius:16px;box-shadow:var(--shadow-sm)">
+        <div style="font-size:56px;margin-bottom:16px">🔍</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--green-deep);margin-bottom:8px">Không tìm thấy chuyến xe</div>
+        <div style="color:var(--mist);font-size:14px">Tuyến này hiện chưa có chuyến phù hợp. Vui lòng chọn tuyến khác hoặc thay đổi ngày đi.</div>
+      </div>`;
+    return;
+  }
+  list.innerHTML = TRIPS.map(t => `
+    <div class="trip-card" onclick="selectTrip(${t.id},this)">
+      <div class="trip-company">
+        <div class="company-logo" style="background:${t.color}">${t.logo}</div>
+        <div class="company-name">${t.company}</div>
+      </div>
+      <div class="trip-route">
+        <div class="trip-times">
+          <span class="trip-time">${t.depart}</span>
+          <div class="trip-duration">⏱ ${t.duration}</div>
+          <span class="trip-time">${t.arrive}</span>
+        </div>
+        <div class="trip-stations">${t.from} → ${t.to} &nbsp;·&nbsp; ${t.bus}</div>
+      </div>
+      <div class="trip-info">
+        <span class="trip-type-badge ${badges[t.type]}">${typeLabels[t.type]}</span>
+        <span class="trip-seats">${t.seats <= 6 ? `<span class="seats-left">⚡ Còn ${t.seats} ghế</span>` : `<span class="seats-ok">✓ Còn ${t.seats} ghế</span>`}</span>
+        <span class="trip-price">${fmt(t.price)}<small>/ghế</small></span>
+      </div>
+      <button class="btn-choose" onclick="event.stopPropagation();selectTrip(${t.id},null,true)">Chọn →</button>
+    </div>
+  `).join('');
+}
+
+function selectTrip(id, el, proceed=false) {
+  document.querySelectorAll('.trip-card').forEach(c=>c.classList.remove('selected'));
+  state.selectedTrip = TRIPS.find(t=>t.id===id);
+  if (el) el.classList.add('selected');
+  if (proceed) { buildSeatMap(); goPanel(2); }
+}
+
+// ─── SEAT MAP ─────────────────────────────────────────────
+function buildSeatMap() {
+  const trip = state.selectedTrip;
+  state.selectedSeats = [];
+  document.getElementById('seatMapTitle').textContent = `Chọn ghế — ${trip.company} | ${trip.depart} → ${trip.arrive}`;
+
+  const isVIP = trip.type === 'VIP';
+  const hasTwoDecks = trip.type === 'GN' || trip.type === 'VIP';
+  document.getElementById('upperDeckContainer').style.display = hasTwoDecks ? '' : 'none';
+
+  // Lấy dữ liệu ghế đã đặt từ đối tượng trip
+  const bookedSet = trip.bookedSeats;
+
+  renderDeck('lowerDeck', 1, hasTwoDecks ? 20 : 45, bookedSet, isVIP, hasTwoDecks ? 4 : 5);
+  if (hasTwoDecks) renderDeck('upperDeck', 21, 40, bookedSet, isVIP, 4);
+
+  updateSeatSummary();
+}
+
+function renderDeck(containerId, start, end, bookedSet, isVIP, cols) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const seats = [];
+  for (let i = start; i <= end; i++) seats.push(i);
+
+  const rows = [];
+  for (let i = 0; i < seats.length; i += cols) rows.push(seats.slice(i, i+cols));
+
+  rows.forEach(row => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'seat-row';
+    row.forEach((n, idx) => {
+      if (idx === Math.floor(cols/2)) {
+        const aisle = document.createElement('div');
+        aisle.className = 'aisle';
+        rowEl.appendChild(aisle);
+      }
+      const sid = 'S' + n;
+      const isBooked = bookedSet.has(sid);
+      const seatClass = isBooked ? 'seat booked' : (isVIP && n <= start+4 ? 'seat vip' : 'seat available');
+      const label = n < 10 ? 'A0'+n : (n < 20 ? 'A'+n : (n < 30 ? 'B'+(n-20+1) : 'B'+(n-20+1)));
+      const el = document.createElement('div');
+      el.className = seatClass;
+      el.dataset.seat = sid;
+      el.dataset.label = label;
+      if (!isBooked) { el.textContent = label; el.onclick = () => toggleSeat(el); }
+      rowEl.appendChild(el);
+    });
+    container.appendChild(rowEl);
+  });
+}
+
+function toggleSeat(el) {
+  const sid = el.dataset.seat;
+  const label = el.dataset.label;
+  const isVIP = el.classList.contains('vip');
+  const maxSeats = 5;
+
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    el.classList.add(isVIP ? 'vip' : 'available');
+    state.selectedSeats = state.selectedSeats.filter(s=>s.id!==sid);
+  } else {
+    if (state.selectedSeats.length >= maxSeats) {
+      showToast(`Chỉ được chọn tối đa 5 ghế`, 'error'); return;
+    }
+    el.classList.remove('available','vip');
+    el.classList.add('selected');
+    state.selectedSeats.push({ id: sid, label, isVIP });
+  }
+  updateSeatSummary();
+}
+
+function updateSeatSummary() {
+  const trip = state.selectedTrip;
+  const tags = document.getElementById('selectedTags');
+  const count = state.selectedSeats.length;
+
+  if (count === 0) {
+    tags.innerHTML = '<span style="color:var(--mist);font-size:13px">Chưa chọn ghế nào</span>';
+  } else {
+    tags.innerHTML = state.selectedSeats.map(s=>`
+      <span class="seat-tag">${s.label} ${s.isVIP?'⭐':''}
+        <button onclick="deselectSeat('${s.id}')">×</button>
+      </span>`).join('');
+  }
+  document.getElementById('seatCount').textContent = count;
+  const price = trip.price * count;
+  document.getElementById('unitPrice').textContent = fmt(trip.price);
+  document.getElementById('totalPrice').textContent = fmt(price);
+  document.getElementById('btnToPassenger').disabled = count === 0;
+}
+
+function deselectSeat(sid) {
+  const el = document.querySelector(`[data-seat="${sid}"]`);
+  if (el) toggleSeat(el);
+}
+
+// ─── PASSENGER ────────────────────────────────────────────
+function goToPassenger() {
+  buildSummary();
+  goPanel(3);
+}
+
+function buildSummary() {
+  const trip = state.selectedTrip;
+  const seatLabels = state.selectedSeats.map(s=>s.label).join(', ');
+  const total = trip.price * state.selectedSeats.length;
+
+  document.getElementById('summaryRoute').innerHTML = `
+    <div class="route-from">${trip.from}</div>
+    <div class="route-arrow">↓</div>
+    <div class="route-from">${trip.to}</div>
+    <div style="margin-top:8px;font-size:12px;color:var(--mist)">${trip.depart} — ${document.getElementById('departDate').value}</div>
+  `;
+  const rows = [
+    ['Hãng xe', trip.company],
+    ['Loại xe', trip.bus],
+    ['Ghế', seatLabels],
+    ['Giá/ghế', fmt(trip.price)],
+    ['Số lượng', state.selectedSeats.length + ' ghế'],
+  ];
+  document.getElementById('summaryRows').innerHTML = rows.map(r=>`
+    <div class="summary-row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+  document.getElementById('summaryTotal').textContent = fmt(total);
+
+  // payment summary
+  document.getElementById('paymentSummaryRows').innerHTML = rows.map(r=>`
+    <div class="summary-row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+  document.getElementById('paymentTotal').textContent = fmt(total);
+}
+
+function goToPayment() {
+  const name = document.getElementById('pName').value.trim();
+  const phone = document.getElementById('pPhone').value.trim();
+  if (!name || !phone) { showToast('Vui lòng nhập họ tên và số điện thoại', 'error'); return; }
+  state.passengerInfo = { name, phone };
+  startCountdown();
+  goPanel(4);
+}
+
+// ─── PAYMENT ──────────────────────────────────────────────
+function selectMethod(el, method) {
+  document.querySelectorAll('.method-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.paymentMethod = method;
+  document.getElementById('cardFields').classList.toggle('show', method==='card');
+}
+
+function formatCardNum(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,16);
+  el.value = v.replace(/(.{4})/g,'$1 ').trim();
+  document.getElementById('cardNumDisplay').textContent = (v+'••••••••••••••••').substring(0,16).replace(/(.{4})/g,'$1 ').trim();
+}
+function formatExp(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.length>2) v = v.substring(0,2)+'/'+v.substring(2,4);
+  el.value = v;
+  document.getElementById('cardExpDisplay').textContent = v||'MM/YY';
+}
+
+function processPayment() {
+  showToast('Đang xử lý thanh toán...', '');
+  clearInterval(state.countdownInterval);
+  setTimeout(() => {
+    buildTicket();
+    goPanel(5);
+    showToast('Thanh toán thành công! 🎉', 'success');
+  }, 2000);
+}
+
+function startCountdown() {
+  clearInterval(state.countdownInterval);
+  state.countdownSec = 599;
+  const el = document.getElementById('countdown');
+  state.countdownInterval = setInterval(() => {
+    state.countdownSec--;
+    if (state.countdownSec <= 0) { clearInterval(state.countdownInterval); el.textContent='00:00'; return; }
+    const m = String(Math.floor(state.countdownSec/60)).padStart(2,'0');
+    const s = String(state.countdownSec%60).padStart(2,'0');
+    el.textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+// ─── TICKET ───────────────────────────────────────────────
+function buildTicket() {
+  const trip = state.selectedTrip;
+  const code = 'VX' + Math.random().toString(36).substring(2,8).toUpperCase();
+  const seats = state.selectedSeats.map(s=>s.label).join(', ');
+  const date = document.getElementById('departDate').value;
+  const name = state.passengerInfo.name;
+  const phone = state.passengerInfo.phone;
+  const total = trip.price * state.selectedSeats.length;
+
+  // LƯU VÉ VÀO HỆ THỐNG
+  state.bookedTickets.push({
+    code: code,
+    phone: phone,
+    name: name,
+    from: trip.from,
+    to: trip.to,
+    depart: trip.depart,
+    date: date,
+    seats: seats,
+    total: total,
+    status: 'Đã thanh toán'
+  });
+
+  // Vẽ giao diện vé
+  document.getElementById('ticketCard').innerHTML = `
+    <div class="ticket-header">
+      <div class="ticket-code"><span>Mã vé</span><strong>${code}</strong></div>
+      <div class="qr-code">🎫</div>
+    </div>
+    <div class="ticket-route">
+      <div class="ticket-city">
+        <div class="ticket-city-name">${trip.from}</div>
+        <div class="ticket-city-time">${trip.depart} · ${date}</div>
+      </div>
+      <div class="ticket-arrow">→</div>
+      <div class="ticket-city" style="text-align:right">
+        <div class="ticket-city-name">${trip.to}</div>
+        <div class="ticket-city-time">${trip.arrive} · ${date}</div>
+      </div>
+    </div>
+    <div class="ticket-details">
+      <div class="ticket-detail-item"><div class="ticket-detail-label">Hành khách</div><div class="ticket-detail-value">${name}</div></div>
+      <div class="ticket-detail-item"><div class="ticket-detail-label">Hãng xe</div><div class="ticket-detail-value">${trip.company}</div></div>
+      <div class="ticket-detail-item"><div class="ticket-detail-label">Ghế</div><div class="ticket-detail-value">${seats}</div></div>
+      <div class="ticket-detail-item"><div class="ticket-detail-label">Tổng tiền</div><div class="ticket-detail-value" style="color:var(--green-deep)">${fmt(total)}</div></div>
+    </div>
+    <div class="ticket-perforated">
+      <div class="ticket-note">✅ Xuất trình mã vé khi lên xe</div>
+      <div style="font-size:22px">🚌</div>
+    </div>
+  `;
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────
+function goPanel(n) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel'+n).classList.add('active');
+  state.currentPanel = n;
+  updateSteps(n);
+  window.scrollTo({top:200,behavior:'smooth'});
+}
+
+function updateSteps(active) {
+  for(let i=1;i<=5;i++){
+    const s = document.getElementById('step'+i);
+    s.classList.remove('active','done');
+    if (i < active) s.classList.add('done');
+    else if (i === active) s.classList.add('active');
+  }
+}
+
+function goBack(from) {
+  if (from === 3) { goPanel(2); }
+  else if (from === 4) { 
+    clearInterval(state.countdownInterval); // Bổ sung việc dọn dẹp interval tại đây
+    goPanel(3); 
+  }
+}
+
+function searchTrips() {
+  const fromKey = document.getElementById('fromCity').value;
+  const toKey   = document.getElementById('toCity').value;
+  if (!fromKey || !toKey) { showToast('Vui lòng chọn điểm đi và điểm đến', 'error'); return; }
+  if (fromKey === toKey)  { showToast('Điểm đi và điểm đến không được trùng nhau', 'error'); return; }
+
+  showToast('Đang tìm chuyến phù hợp...', '');
+  
+  // Reset lại bộ lọc khi tìm kiếm tuyến mới
+  document.querySelectorAll('.filter-label input').forEach(cb => cb.checked = false);
+
+  setTimeout(() => {
+    // Lưu mảng gốc vào state thay vì ghi đè thẳng lên TRIPS
+    state.searchedTrips = ALL_TRIPS.filter(t => t.fromKey === fromKey && t.toKey === toKey);
+    
+    // Áp dụng bộ lọc (lúc này chưa có checkbox nào được check nên sẽ hiện tất cả)
+    applyFilters(); 
+    
+    goPanel(1);
+    if (state.searchedTrips.length > 0) showToast(`Tìm thấy ${state.searchedTrips.length} chuyến phù hợp ✓`, 'success');
+    else showToast('Không tìm thấy chuyến xe cho tuyến này', 'error');
+  }, 600);
+}
+
+function applyFilters() {
+  if (!state.searchedTrips) return;
+  
+  // Lấy danh sách các nhóm bộ lọc một cách chính xác
+  const filterGroups = document.querySelectorAll('.filter-group');
+  
+  // filterGroups[0] là Loại xe, filterGroups[1] là Giờ khởi hành
+  const typeFilters = Array.from(filterGroups[0].querySelectorAll('input:checked')).map(cb => cb.value);
+  const timeFilters = Array.from(filterGroups[1].querySelectorAll('input:checked')).map(cb => cb.value);
+
+  // Lọc dữ liệu từ mảng gốc
+  TRIPS = state.searchedTrips.filter(trip => {
+    // Lọc theo Loại xe
+    let passType = typeFilters.length === 0 || typeFilters.includes(trip.type);
+    
+    // Lọc theo Giờ khởi hành
+    let passTime = timeFilters.length === 0;
+    if (timeFilters.length > 0) {
+      const hour = parseInt(trip.depart.split(':')[0]);
+      if (timeFilters.includes('morning') && hour >= 6 && hour < 12) passTime = true;
+      if (timeFilters.includes('afternoon') && hour >= 12 && hour < 18) passTime = true;
+      if (timeFilters.includes('evening') && hour >= 18 && hour < 24) passTime = true;
+      if (timeFilters.includes('night') && hour >= 0 && hour < 6) passTime = true;
+    }
+    
+    return passType && passTime;
+  });
+
+  // Cập nhật lại tiêu đề số lượng chuyến
+  const fromKey = document.getElementById('fromCity').value;
+  const toKey   = document.getElementById('toCity').value;
+  if (fromKey && toKey) {
+    document.querySelector('#panel1 .section-title').textContent = TRIPS.length > 0
+      ? `${TRIPS.length} chuyến ${CITIES[fromKey]} → ${CITIES[toKey]}`
+      : `Không có chuyến phù hợp bộ lọc`;
+  }
+
+  // Vẽ lại danh sách ra HTML
+  renderTrips();
+}
+
+function clearFilters() {
+  document.querySelectorAll('.filter-label input').forEach(cb => cb.checked = false);
+  applyFilters();
+}
+
+function swapCities() {
+  const f = document.getElementById('fromCity');
+  const t = document.getElementById('toCity');
+  [f.value, t.value] = [t.value, f.value];
+}
+
+function resetAll() {
+  clearInterval(state.countdownInterval);
+  state = { currentPanel:1, selectedTrip:null, selectedSeats:[], passengerInfo:{}, paymentMethod:'momo', countdownInterval:null, countdownSec:599 };
+  TRIPS = [...ALL_TRIPS];
+  document.querySelector('#panel1 .section-title').textContent = 'Các chuyến xe phù hợp';
+  renderTrips();
+  goPanel(1);
+}
+
+// ─── UTILS ────────────────────────────────────────────────
+function fmt(n) { return n.toLocaleString('vi-VN') + ' ₫'; }
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  const icons = { success:'✅ ', error:'⚠️ ', '':'⏳ ' };
+  t.textContent = (icons[type]||'') + msg;
+  t.className = 'toast ' + (type||'');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Step click nav
+document.querySelectorAll('.step').forEach((s,i) => {
+  s.addEventListener('click', () => {
+    if (s.classList.contains('done')) goPanel(i+1);
+  });
+});
+
+// ─── TÍNH NĂNG TRÊN HEADER ────────────────────────────────
+function showSchedule() {
+  // Lấy toàn bộ chuyến đi hiển thị ra ngoài
+  TRIPS = [...ALL_TRIPS];
+  state.searchedTrips = [...ALL_TRIPS];
+  document.querySelector('#panel1 .section-title').textContent = 'Tất cả lịch trình xe chạy';
+  document.getElementById('stepsBar').style.display = 'flex'; // Hiện lại thanh tiến trình
+  goPanel(1);
+  renderTrips();
+}
+
+function showLookupPanel() {
+  document.getElementById('stepsBar').style.display = 'none'; // Ẩn thanh tiến trình
+  
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel6').classList.add('active');
+  
+  window.scrollTo({top: 150, behavior: 'smooth'});
+  
+  // Gọi hàm in danh sách vé
+  renderMyTickets();
+}
+
+// In toàn bộ vé từ mảng state.bookedTickets ra màn hình
+function renderMyTickets() {
+  const container = document.getElementById('myTicketsList');
+  
+  if (state.bookedTickets.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:60px 20px;background:var(--white);border-radius:16px;box-shadow:var(--shadow-sm)">
+        <div style="font-size:56px;margin-bottom:16px">🎟️</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--green-deep);margin-bottom:8px">Bạn chưa có vé nào</div>
+        <div style="color:var(--mist);font-size:14px">Các chuyến xe bạn đã đặt sẽ xuất hiện tại đây.</div>
+        <button type="button" class="btn-outline" onclick="resetAll()" style="margin-top:24px;">🏠 Trở về Đặt vé</button>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = [...state.bookedTickets].reverse().map(ticket => {
+    const isCancelled = ticket.status === 'Đã hủy';
+    const statusColor = isCancelled ? 'var(--red)' : 'var(--green-bright)';
+    const statusBg = isCancelled ? '#ffebee' : 'var(--green-pale)';
+    
+    return `
+      <div style="background: var(--white); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm); border-left: 6px solid ${statusColor}; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+          <div>
+            <h4 style="color: var(--green-deep); margin-bottom: 8px; font-size: 18px; font-family: monospace;">${ticket.code}</h4>
+            <span style="font-size: 13px; font-weight: 700; color: ${statusColor}; background: ${statusBg}; padding: 4px 12px; border-radius: 20px;">${ticket.status}</span>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 20px; font-weight: 700; color: var(--ink);">${ticket.from} → ${ticket.to}</div>
+            <div style="font-size: 13px; color: var(--mist); margin-top: 4px;">${ticket.depart} · ${ticket.date}</div>
+          </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+          <div class="summary-row" style="border:none; padding:0;"><span>Hành khách:</span><span style="color:var(--ink)">${ticket.name}</span></div>
+          <div class="summary-row" style="border:none; padding:0;"><span>SĐT:</span><span style="color:var(--ink)">${ticket.phone}</span></div>
+          <div class="summary-row" style="border:none; padding:0;"><span>Ghế:</span><span style="color:var(--ink)">${ticket.seats}</span></div>
+          <div class="summary-row" style="border:none; padding:0;"><span>Tổng tiền:</span><span style="color:var(--green-deep); font-size: 16px;">${fmt(ticket.total)}</span></div>
+        </div>
+
+        ${!isCancelled ? `
+          <div style="text-align: right;">
+            <button type="button" class="btn-outline" onclick="cancelTicketDirectly('${ticket.code}')" style="border-color: var(--red); color: var(--red); padding: 8px 24px; font-size: 14px;">❌ Hủy vé này</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// Xử lý hủy vé trực tiếp từ nút bấm trên thẻ vé
+function cancelTicketDirectly(code) {
+  console.log("Đang gọi lệnh hủy cho mã vé:", code); // Log để kiểm tra sự kiện click
+  
+  const ticketIndex = state.bookedTickets.findIndex(t => t.code === code);
+  
+  if (ticketIndex === -1) {
+    showToast('Lỗi: Không tìm thấy vé trong hệ thống!', 'error');
+    console.error("Không tìm thấy mã vé trong state.bookedTickets");
+    return;
+  }
+
+  if (confirm(`Bạn có chắc chắn muốn hủy vé ${code} không? Thao tác này không thể hoàn tác.`)) {
+    showToast('Đang xử lý hủy vé...', '');
+    
+    setTimeout(() => {
+      state.bookedTickets[ticketIndex].status = 'Đã hủy';
+      renderMyTickets(); 
+      showToast('Đã hủy vé thành công', 'success');
+      console.log("Hủy thành công. Trạng thái mảng hiện tại:", state.bookedTickets);
+    }, 800);
+  }
+}
+</script>
+</body>
+</html>
