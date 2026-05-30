@@ -867,9 +867,24 @@ function swapCities() {
 
 function resetAll() {
   clearInterval(state.countdownInterval);
-  state = { currentPanel:1, selectedTrip:null, selectedSeats:[], passengerInfo:{}, paymentMethod:'momo', countdownInterval:null, countdownSec:599 };
+  
+  state = { 
+    currentPanel: 1, 
+    selectedTrip: null, 
+    selectedSeats: [], 
+    passengerInfo: {}, 
+    paymentMethod: 'momo', 
+    countdownInterval: null, 
+    countdownSec: 599,
+    searchedTrips: [],
+    bookedTickets: state.bookedTickets 
+  };
+  
   TRIPS = [...ALL_TRIPS];
   document.querySelector('#panel1 .section-title').textContent = 'Các chuyến xe phù hợp';
+  
+  document.getElementById('stepsBar').style.display = 'flex';
+  
   renderTrips();
   goPanel(1);
 }
